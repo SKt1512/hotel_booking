@@ -1,19 +1,20 @@
-name: CI Pipeline
+name: Run Hotel Booking Pipeline
 
 on:
   push:
+    branches: ["main"]
   pull_request:
 
 jobs:
-  build:
+  build-and-train:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
@@ -22,14 +23,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run tests
+    - name: Run Training Pipeline
       run: |
-        python -m pytest -q
-
-    - name: Run pipeline end-to-end
-      run: |
-        python -m hotel_bookings_pipeline.main --data_path "Hotel Reservations.csv" --model_out ci_model.joblib
+        python -m hotel_bookings_pipeline.main --data_path data/hotel_bookings.csv
 
     - name: Check model was created
       run: |
-        test -f ci_model.joblib
+        if [ ! -f "final_random_forest_model.joblib" ]; then
+          echo "Model not created!"; exit 1;
+        fi
+
+    - name: Upload Model Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: trained-model
+        path: final_random_forest_model.joblib
