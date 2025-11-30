@@ -25,7 +25,7 @@ jobs:
 
     - name: Run Training Pipeline
       run: |
-        python -m hotel_bookings_pipeline.main --data_path data/hotel_bookings.csv
+        python -m hotel_bookings_pipeline.main --data_path "data/Hotel Reservations.csv"
 
     - name: Check model was created
       run: |
